@@ -17,7 +17,13 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import filters
 from rest_framework import routers, serializers, viewsets
-from server.models import Task, GroupMember
+from server.models import Task, GroupMember, Group
+from rest_framework import permissions
+
+
+class IsInTaskGroupPermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return request.user and obj.group == request.user.groupmember.group
 
 
 class IsInTaskGroupFilter(filters.BaseFilterBackend):
@@ -46,6 +52,17 @@ class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     filter_backends = (IsInTaskGroupFilter,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+class IsInSameGroupPermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return request.user and obj.group == request.user.groupmember.group
+
+
+class IsInSameGroupFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        return queryset.filter(group=request.user.groupmember.group)
 
 
 class GroupMemberSerializer(serializers.ModelSerializer):
@@ -54,21 +71,41 @@ class GroupMemberSerializer(serializers.ModelSerializer):
         fields = ('user',)
 
 
-class IsInSameGroupFilter(filters.BaseFilterBackend):
-    def filter_queryset(self, request, queryset, view):
-        return queryset.filter(group=request.user.groupmember.group)
-
-
 class GroupMemberViewSet(viewsets.ModelViewSet):
     queryset = GroupMember.objects.all()
     serializer_class = GroupMemberSerializer
     filter_backends = (IsInSameGroupFilter,)
+    permission_classes = (IsInSameGroupPermission,)
+
+
+class IsInGroupPermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return request.user and obj == request.user.groupmember.group
+
+
+class IsInGroupFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        return queryset.filter(id=request.user.groupmember.group.id)
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ('name', 'members')
+
+
+class GroupsViewSet(viewsets.ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    filter_backends = (IsInGroupFilter,)
+    permission_classes = (IsInGroupPermission,)
 
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
 router.register(r'tasks', TaskViewSet)
 router.register(r'groupmembers', GroupMemberViewSet)
+router.register(r'groups', GroupsViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.

@@ -14,7 +14,7 @@ class Task(models.Model):
 
 class GroupMember(models.Model):
     user = models.OneToOneField(User)
-    group = models.ForeignKey('Group')
+    group = models.ForeignKey('Group', related_name='members')
 
     def __str__(self):
         return self.user.username
