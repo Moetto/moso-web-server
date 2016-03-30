@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'server',
     'rest_framework',
-    'gcm'
+    'gcm',
+    'rest_framework.authtoken',
+
 ]
 
 MIDDLEWARE_CLASSES = [
