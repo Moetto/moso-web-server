@@ -13,12 +13,15 @@ class Task(models.Model):
 
 
 class GroupMember(models.Model):
-    user = models.OneToOneField(User)
-    group = models.ForeignKey('Group', related_name='members')
+    user = models.OneToOneField(User, blank=True, null=True)
+    group = models.ForeignKey('Group', related_name='members', null=True, blank=True)
+    userid = models.CharField(max_length=150)
 
     def __str__(self):
-        return self.user.username
-
+        try:
+            return self.user.username
+        except:
+            return "Kikkeli"
 
 class Group(models.Model):
     name = models.CharField(max_length=30)

@@ -6,6 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from oauth2client import client, crypt
 import uuid
 # Create your views here.
+from rest_framework.authtoken.models import Token
+
 from server.models import GroupMember
 
 CLIENT_ID = "727690215041-1oa6sfgn9u225i7m4gkrmkscmlojlqg5.apps.googleusercontent.com"
@@ -36,9 +38,17 @@ def get_auth_token(request):
             return HttpResponse("Invalid identity", status=400)
             # Invalid token
         userid = idinfo['sub']
-        member, created = GroupMember.objects.get_or_create(userid=userid)
+        print("Userid: "+userid)
+        member, created = GroupMember.objects.get_or_create(userid=str(userid))
+        member.save()
         if created:
-            user = User.objects.create(username="asd")
+            user = User.objects.create(username=uuid.uuid4())
+            member.user = user
+            member.save()
+            user.save()
+            token = Token.objects.create(user=user)
+            token.save()
+        return HttpResponse(Token.objects.get(user=member.user))
 
     return HttpResponse("POST only", status=400)
 
