@@ -36,7 +36,7 @@ class IsInTaskGroupFilter(filters.BaseFilterBackend):
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ('title', 'creator', 'group', 'responsible_member', 'id')
+        fields = ('title', 'creator', 'group', 'responsible_member', 'id', 'description')
         read_only_fields = ('creator', 'group', 'id')
 
     def create(self, validated_data):

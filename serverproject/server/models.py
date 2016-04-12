@@ -4,6 +4,7 @@ from django.db import models
 
 class Task(models.Model):
     title = models.CharField(max_length=50)
+    description = models.TextField(max_length=300)
     creator = models.ForeignKey('GroupMember', related_name='creator')
     group = models.ForeignKey('Group')
     responsible_member = models.ForeignKey('GroupMember', related_name='responsible', null=True, blank=True)
