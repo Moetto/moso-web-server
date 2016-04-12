@@ -36,8 +36,8 @@ class IsInTaskGroupFilter(filters.BaseFilterBackend):
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ('title', 'creator', 'group', 'responsible_member')
-        read_only_fields = ('creator', 'group')
+        fields = ('title', 'creator', 'group', 'responsible_member', 'id')
+        read_only_fields = ('creator', 'group', 'id')
 
     def create(self, validated_data):
         request = self.context['request']
@@ -46,7 +46,7 @@ class TaskSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        assert validated_data.get('responsible', None) and instance.responsible is not None
+        # assert validated_data.get('responsible', None) and instance.responsible is not None
         return super().update(instance, validated_data)
 
 
