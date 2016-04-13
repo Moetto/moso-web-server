@@ -24,19 +24,22 @@ from rest_framework import permissions
 
 
 class IsInTaskGroupPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.groupmember.group
+
     def has_object_permission(self, request, view, obj):
-        return request.user and obj.group == request.user.groupmember.group
+        return request.user and request.user.groupmember and obj.creator.group == request.user.groupmember.group
 
 
 class IsInTaskGroupFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        return queryset.filter(group=request.user.groupmember.group)
+        return queryset.filter(creator__group=request.user.groupmember.group)
 
 
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ('title', 'creator', 'group', 'responsible_member', 'id', 'description')
+        fields = ('title', 'creator', 'responsible_member', 'id', 'description')
         read_only_fields = ('creator', 'group', 'id')
 
     def create(self, validated_data):
@@ -59,12 +62,12 @@ class TaskViewSet(viewsets.ModelViewSet):
 
 class IsInSameGroupPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        return request.user and obj.group == request.user.groupmember.group
+        return request.user and obj.creator.group == request.user.groupmember.group
 
 
 class IsInSameGroupFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        return queryset.filter(group=request.user.groupmember.group)
+        return queryset.filter(creator__group=request.user.groupmember.group)
 
 
 class GroupMemberSerializer(serializers.ModelSerializer):
