@@ -36,4 +36,5 @@ class Group(models.Model):
 class Location(models.Model):
     name = models.CharField(max_length=50)
     longitute = models.FloatField()
-    latiture = models.FloatField()
+    latitute = models.FloatField()
+    group = models.ForeignKey(Group)
