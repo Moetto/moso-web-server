@@ -19,7 +19,7 @@ from rest_framework import filters
 from rest_framework import routers, serializers, viewsets
 
 from server import views
-from server.models import Task, GroupMember, Group
+from server.models import Task, GroupMember, Group, Location
 from rest_framework import permissions
 
 
@@ -106,11 +106,39 @@ class GroupsViewSet(viewsets.ModelViewSet):
     permission_classes = (IsInGroupPermission,)
 
 
+class BelongsToSameGroup(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.groupmember.group:
+            return False
+        return super().has_permission(request, view)
+
+    def has_object_permission(self, request, view, obj):
+        if not request.user.groupmember.group:
+            return False
+        return obj.group == request.user.groupmember.group
+
+
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ('id', 'name', 'longitude', 'latitude')
+
+    def create(self, validated_data):
+        validated_data['group'] = self.context['request'].user.groupmember.group
+        return super().create(validated_data)
+
+class LocationViewSet(viewsets.ModelViewSet):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+    permission_classes = (BelongsToSameGroup,)
+
+
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
 router.register(r'tasks', TaskViewSet)
 router.register(r'groupmembers', GroupMemberViewSet)
 router.register(r'groups', GroupsViewSet)
+router.register(r'locations', LocationViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.

@@ -35,6 +35,6 @@ class Group(models.Model):
 
 class Location(models.Model):
     name = models.CharField(max_length=50)
-    longitute = models.FloatField()
-    latitute = models.FloatField()
+    longitude = models.FloatField()
+    latitude = models.FloatField()
     group = models.ForeignKey(Group)
