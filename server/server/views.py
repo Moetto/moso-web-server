@@ -1,3 +1,5 @@
+import json
+
 from django import forms
 from django.contrib.auth.models import User
 from django.http import HttpResponse
@@ -48,7 +50,8 @@ def get_auth_token(request):
             user.save()
             token = Token.objects.create(user=user)
             token.save()
-        return HttpResponse(Token.objects.get(user=member.user))
+        return HttpResponse(json.dumps({"token": str(Token.objects.get(user=member.user)),
+                                       "group_member_id": member.id}))
 
     return HttpResponse("POST only", status=400)
 
