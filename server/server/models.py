@@ -7,8 +7,8 @@ class Task(models.Model):
     description = models.TextField(max_length=300)
     creator = models.ForeignKey('GroupMember', related_name='creator')
     responsible_member = models.ForeignKey('GroupMember', related_name='responsible', null=True, blank=True)
-    deadline = models.DateTimeField(blank=True, null=True)
-    estimated_completion_time = models.DateTimeField(blank=True, null=True)
+    deadline = models.IntegerField(blank=True, null=True)
+    estimated_completion_time = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return self.title
