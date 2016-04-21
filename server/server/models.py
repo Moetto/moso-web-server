@@ -38,3 +38,5 @@ class Location(models.Model):
     longitude = models.FloatField()
     latitude = models.FloatField()
     group = models.ForeignKey(Group)
+
+import server.signals
