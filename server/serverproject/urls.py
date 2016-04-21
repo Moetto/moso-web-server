@@ -45,7 +45,6 @@ class TaskSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context['request']
         validated_data['creator'] = request.user.groupmember
-        validated_data['group'] = request.user.groupmember.group
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
