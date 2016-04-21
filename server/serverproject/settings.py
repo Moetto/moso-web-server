@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'server',
     'rest_framework',
-    'gcm',
+    'push_notifications',
     'rest_framework.authtoken',
 
 ]
@@ -133,6 +133,7 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
-
-GCM_APIKEY = 'AIzaSyCZFGfquRD8l72KB0xdJMWXMqSnWmcxqG0'
+PUSH_NOTIFICATIONS_SETTINGS = {
+        "GCM_API_KEY": "AIzaSyCZFGfquRD8l72KB0xdJMWXMqSnWmcxqG0",
+}
 

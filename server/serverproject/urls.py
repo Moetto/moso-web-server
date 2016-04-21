@@ -146,6 +146,5 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^register/$', views.get_auth_token, name='register'),
-    url(r'', include('gcm.urls')),
 ]
 

@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from oauth2client import client, crypt
 import uuid
 # Create your views here.
+from push_notifications.models import GCMDevice
 from rest_framework.authtoken.models import Token
 
 from server.models import GroupMember
@@ -18,6 +19,7 @@ ANDROID_CLIENT_ID = "727690215041-1oa6sfgn9u225i7m4gkrmkscmlojlqg5.apps.googleus
 
 class RegisterForm(forms.Form):
     token = forms.CharField()
+    gcm_token = forms.CharField()
 
 
 @csrf_exempt
@@ -50,6 +52,9 @@ def get_auth_token(request):
             user.save()
             token = Token.objects.create(user=user)
             token.save()
+            device = GCMDevice(registration_id=form.cleaned_data['gcm_token'], user=user)
+            device.save()
+
         return HttpResponse(json.dumps({"token": str(Token.objects.get(user=member.user)),
                                        "group_member_id": member.id}))
 
