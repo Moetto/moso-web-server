@@ -9,6 +9,7 @@ class Task(models.Model):
     responsible_member = models.ForeignKey('GroupMember', related_name='responsible', null=True, blank=True)
     deadline = models.IntegerField(blank=True, null=True)
     estimated_completion_time = models.IntegerField(blank=True, null=True)
+    completed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
