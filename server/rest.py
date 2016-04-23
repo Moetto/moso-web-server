@@ -1,4 +1,4 @@
-#from django.db.models import Q
+from django.db.models import Q
 from rest_framework import filters
 from rest_framework import routers, serializers, viewsets
 
@@ -122,9 +122,10 @@ class LocationViewSet(viewsets.ModelViewSet):
 class InviteFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         if not request.user.groupmember.group:
-            return queryset.none()
-        return queryset
-        #return queryset.filter(Q(invited__id__in=request.user.groupmember.group.members.values_list('id', flat=True)))
+            return queryset.filter(invited=request.user.groupmember)
+        return queryset.filter(Q(invited__id__in=request.user.groupmember.group.members.values_list('id', flat=True)) |
+                               Q(inviter__id__in=request.user.groupmember.group.members.values_list('id', flat=True)) |
+                               Q(invited=request.user.groupmember))
 
 
 class InviteSerializer(serializers.ModelSerializer):

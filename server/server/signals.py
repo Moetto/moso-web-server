@@ -23,4 +23,4 @@ def remove_empty_group(sender, **kwargs):
 @receiver(post_save, sender=Invite)
 def send_invite(sender, **kwargs):
     invite = kwargs['instance']
-    GCMDevice.objects.filter(user=invite.invited).send_message(json.dumps(InviteSerializer(invite).data))
+    GCMDevice.objects.filter(user=invite.invited.user).send_message(json.dumps(InviteSerializer(invite).data))
