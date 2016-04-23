@@ -45,4 +45,4 @@ class Invite(models.Model):
     inviter = models.ForeignKey(GroupMember, related_name='sent_invite')
     invited = models.ForeignKey(GroupMember, related_name='received_invite')
 
-import server.signals
+from server.signals import *
