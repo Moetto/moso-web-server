@@ -16,7 +16,7 @@ class Task(models.Model):
 
 class GroupMember(models.Model):
     user = models.OneToOneField(User, blank=True, null=True)
-    group = models.ForeignKey('Group', related_name='members', null=True, blank=True)
+    group = models.ForeignKey('Group', related_name='members', null=True, blank=True, on_delete=models.SET_NULL)
     userid = models.CharField(max_length=150)
 
     def __str__(self):
@@ -38,5 +38,10 @@ class Location(models.Model):
     longitude = models.FloatField()
     latitude = models.FloatField()
     group = models.ForeignKey(Group)
+
+
+class Invite(models.Model):
+    inviter = models.ForeignKey(GroupMember, related_name='sent_invite')
+    invited = models.ForeignKey(GroupMember, related_name='received_invite')
 
 import server.signals

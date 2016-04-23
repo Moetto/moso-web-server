@@ -19,7 +19,7 @@ from rest_framework import filters
 from rest_framework import routers, serializers, viewsets
 
 from server import views
-from server.models import Task, GroupMember, Group, Location
+from server.models import Task, GroupMember, Group, Location, Invite
 from rest_framework import permissions
 
 
@@ -89,13 +89,22 @@ class IsInGroupPermission(permissions.BasePermission):
 
 class IsInGroupFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        return queryset.filter(id=request.user.groupmember.group.id)
+        if request.user.groupmember.group:
+            return queryset.filter(id=request.user.groupmember.group.id)
+        else:
+            return queryset.none()
 
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ('name', 'members')
+
+    def create(self, validated_data):
+        group = super().create(validated_data)
+        group.members.add(self._context['request'].user.groupmember)
+        self._context['request'].user.groupmember.save()
+        return group
 
 
 class GroupsViewSet(viewsets.ModelViewSet):
@@ -126,18 +135,30 @@ class LocationSerializer(serializers.ModelSerializer):
         validated_data['group'] = self.context['request'].user.groupmember.group
         return super().create(validated_data)
 
+
 class LocationViewSet(viewsets.ModelViewSet):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
     permission_classes = (BelongsToSameGroup,)
 
 
+class InviteSerializer(permissions.BasePermission):
+    class Meta:
+        model = Invite
+        fields = ('id', 'inviter', 'invited')
+
+
+class InviteViewSet(viewsets.ModelViewSet):
+    queryset = Invite.objects.all()
+    serializer_class = InviteSerializer
+
+
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
 router.register(r'tasks', TaskViewSet)
-router.register(r'groupmembers', GroupMemberViewSet)
 router.register(r'groups', GroupsViewSet)
 router.register(r'locations', LocationViewSet)
+router.register(r'groupmembers', GroupMemberViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.

@@ -1,5 +1,6 @@
 import json
 
+import requests
 from django import forms
 from django.contrib.auth.models import User
 from django.http import HttpResponse
@@ -28,9 +29,11 @@ def get_auth_token(request):
         print(request.POST)
         form = RegisterForm(request.POST)
         if not form.is_valid():
+            print(form.errors)
             return HttpResponse("Errors in form", status=400)
 
         try:
+            print(form.cleaned_data['token'])
             idinfo = client.verify_id_token(form.cleaned_data['token'], CLIENT_ID)
             # If multiple clients access the backend server:
             if idinfo['aud'] not in [ANDROID_CLIENT_ID]:
