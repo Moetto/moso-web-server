@@ -18,7 +18,7 @@ class Task(models.Model):
 class GroupMember(models.Model):
     user = models.OneToOneField(User, blank=True, null=True)
     group = models.ForeignKey('Group', related_name='members', null=True, blank=True, on_delete=models.SET_NULL)
-    userid = models.CharField(max_length=150)
+    name = models.CharField(max_length=100)
 
     def __str__(self):
         try:

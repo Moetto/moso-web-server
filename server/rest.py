@@ -50,7 +50,7 @@ class IsInSameGroupPermission(permissions.BasePermission):
 class GroupMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupMember
-        fields = ('user',)
+        fields = ('id', 'group', 'name', )
 
 
 class GroupMemberViewSet(viewsets.ModelViewSet):
