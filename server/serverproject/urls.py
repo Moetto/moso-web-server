@@ -136,7 +136,7 @@ class LocationViewSet(viewsets.ModelViewSet):
     permission_classes = (BelongsToSameGroup,)
 
 
-class InviteSerializer(permissions.BasePermission):
+class InviteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invite
         fields = ('id', 'inviter', 'invited')
@@ -153,6 +153,7 @@ router.register(r'tasks', TaskViewSet)
 router.register(r'groups', GroupsViewSet)
 router.register(r'locations', LocationViewSet)
 router.register(r'groupmembers', GroupMemberViewSet)
+router.register(r'invites', InviteViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
