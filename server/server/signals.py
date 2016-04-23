@@ -1,8 +1,11 @@
+import json
+
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from push_notifications.models import GCMDevice
 from server.models import *
+from serverproject.urls import InviteSerializer
 
 
 @receiver(post_save, sender=GCMDevice)
@@ -18,3 +21,9 @@ def remove_empty_group(sender, **kwargs):
     new = kwargs['instance']
 
     Group.objects.filter(members=None).delete()
+
+
+@receiver(post_save, sender=Invite)
+def send_invite(sender, **kwargs):
+    invite = kwargs['instance']
+    GCMDevice.objects.filter(user=invite.invited).send_message(json.dumps(InviteSerializer(invite).data))
