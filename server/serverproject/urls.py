@@ -64,11 +64,6 @@ class IsInSameGroupPermission(permissions.BasePermission):
         return request.user and obj.creator.group == request.user.groupmember.group
 
 
-class IsInSameGroupFilter(filters.BaseFilterBackend):
-    def filter_queryset(self, request, queryset, view):
-        return queryset.filter(creator__group=request.user.groupmember.group)
-
-
 class GroupMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupMember
@@ -78,7 +73,6 @@ class GroupMemberSerializer(serializers.ModelSerializer):
 class GroupMemberViewSet(viewsets.ModelViewSet):
     queryset = GroupMember.objects.all()
     serializer_class = GroupMemberSerializer
-    filter_backends = (IsInSameGroupFilter,)
     permission_classes = (IsInSameGroupPermission,)
 
 
