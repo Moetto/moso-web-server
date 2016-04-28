@@ -101,6 +101,13 @@ class BelongsToSameGroup(permissions.BasePermission):
         return obj.group == request.user.groupmember.group
 
 
+class LocationFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        if not request.user.groupmember.group:
+            return queryset.none()
+        return queryset.filter(group=request.user.groupmember.group)
+
+
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
@@ -115,6 +122,7 @@ class LocationViewSet(viewsets.ModelViewSet):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
     permission_classes = (BelongsToSameGroup,)
+    filter_backends = (LocationFilter,)
 
 
 class InviteFilter(filters.BaseFilterBackend):
