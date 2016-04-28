@@ -20,6 +20,7 @@ ANDROID_CLIENT_ID = "727690215041-1oa6sfgn9u225i7m4gkrmkscmlojlqg5.apps.googleus
 class RegisterForm(forms.Form):
     token = forms.CharField()
     gcm_token = forms.CharField()
+    name = forms.CharField()
 
 
 @csrf_exempt
@@ -44,21 +45,25 @@ def get_auth_token(request):
             return HttpResponse("Invalid identity", status=400)
             # Invalid token
         userid = idinfo['sub']
-        print("Userid: "+userid)
+        print("Userid: " + userid)
         member, created = GroupMember.objects.get_or_create(userid=str(userid))
         member.save()
         if created:
             user = User.objects.create(username=uuid.uuid4())
             member.user = user
+            member.name = form.cleaned_data["name"]
             member.save()
             user.save()
             token = Token.objects.create(user=user)
             token.save()
             device = GCMDevice(registration_id=form.cleaned_data['gcm_token'], user=user)
             device.save()
-
-        return HttpResponse(json.dumps({"token": str(Token.objects.get(user=member.user)),
-                                       "group_member_id": member.id}))
+        response = {
+            "token": str(Token.objects.get(user=member.user)),
+            "group_member_id": member.id
+        }
+        if member.group:
+            response['group_id'] = member.group.id
+        return HttpResponse(json.dumps(response))
 
     return HttpResponse("POST only", status=400)
-

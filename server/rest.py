@@ -16,23 +16,21 @@ class IsInTaskGroupPermission(permissions.BasePermission):
 
 class IsInTaskGroupFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
+        if not request.user.groupmember.group:
+            return queryset.none()
         return queryset.filter(creator__group=request.user.groupmember.group)
 
 
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ('title', 'creator', 'responsible_member', 'id', 'description', 'deadline', 'estimated_completion_time', 'completed')
+        fields = ('title', 'creator', 'responsible_member', 'id', 'description', 'deadline', 'estimated_completion_time', 'completed', 'location')
         read_only_fields = ('creator', 'id')
 
     def create(self, validated_data):
         request = self.context['request']
         validated_data['creator'] = request.user.groupmember
         return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        # assert validated_data.get('responsible', None) and instance.responsible is not None
-        return super().update(instance, validated_data)
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -50,13 +48,13 @@ class IsInSameGroupPermission(permissions.BasePermission):
 class GroupMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupMember
-        fields = ('id', 'group', 'name', )
+        fields = ('id', 'group', 'name',)
 
 
 class GroupMemberViewSet(viewsets.ModelViewSet):
     queryset = GroupMember.objects.all()
     serializer_class = GroupMemberSerializer
-    permission_classes = (IsInSameGroupPermission,)
+    # permission_classes = (IsInSameGroupPermission,)
 
 
 class IsInGroupPermission(permissions.BasePermission):
@@ -75,7 +73,7 @@ class IsInGroupFilter(filters.BaseFilterBackend):
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = ('name', 'members')
+        fields = ('name', 'members', 'id')
 
     def create(self, validated_data):
         group = super().create(validated_data)
